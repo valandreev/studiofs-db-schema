@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package sfsproto;
+
+option go_package = "github.com/valandreev/studiofs-db-schema";
+
+import "google/protobuf/timestamp.proto";
+
+// Primary configuration object for filesystem instances
+message FilesystemConfig {
+  string uuid = 1;                              // Unique filesystem identifier
+  string friendly_name = 2;                     // Human-readable name
+  google.protobuf.Timestamp created_at = 3;     // Creation timestamp
+  
+  S3Config s3_config = 4;                       // Object storage configuration
+  ChunkConfig chunk_config = 5;                 // Data chunking parameters
+}
+
+message S3Config {
+  string endpoint = 1;                          // S3 endpoint URL
+  string bucket = 2;                            // Target bucket name
+  string access_key = 3;                        // Access credentials
+  string secret_key = 4;                        // Secret credentials
+  string region = 5;                            // AWS region
+}
+
+message ChunkConfig {
+  uint32 max_chunk_size_mb = 1;                 // Maximum chunk size (MB)
+}
+
+// Runtime statistics updated by sfs-artist client
+message FilesystemStats {
+  uint64 total_files = 1;                       // Total file count
+  uint64 total_dirs = 2;                        // Total directory count
+  uint64 total_size_bytes = 3;                  // Logical size of all files
+  google.protobuf.Timestamp last_updated = 4;   // Last statistics update
+}

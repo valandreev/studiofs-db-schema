@@ -10,8 +10,8 @@ The StudioFS database schema defines the structure for:
 - Chunk configuration settings
 - Runtime statistics
 
-This schema is shared across multiple StudioFS applications:
-- `studiofs-lobby` - Administrative CLI utility
+This schema is shared across multiple StudioFS applications (work in progress):
+- `studiofs-lobby` - Administrative CLI utility 
 - `studiofs-artist` - Client application
 - Other StudioFS ecosystem components
 

@@ -22,7 +22,57 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// Primary configuration object for filesystem instances
+type Inode_FileType int32
+
+const (
+	Inode_UNSPECIFIED Inode_FileType = 0
+	Inode_FILE        Inode_FileType = 1
+	Inode_DIRECTORY   Inode_FileType = 2
+)
+
+// Enum value maps for Inode_FileType.
+var (
+	Inode_FileType_name = map[int32]string{
+		0: "UNSPECIFIED",
+		1: "FILE",
+		2: "DIRECTORY",
+	}
+	Inode_FileType_value = map[string]int32{
+		"UNSPECIFIED": 0,
+		"FILE":        1,
+		"DIRECTORY":   2,
+	}
+)
+
+func (x Inode_FileType) Enum() *Inode_FileType {
+	p := new(Inode_FileType)
+	*p = x
+	return p
+}
+
+func (x Inode_FileType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (Inode_FileType) Descriptor() protoreflect.EnumDescriptor {
+	return file_sfs_proto_enumTypes[0].Descriptor()
+}
+
+func (Inode_FileType) Type() protoreflect.EnumType {
+	return &file_sfs_proto_enumTypes[0]
+}
+
+func (x Inode_FileType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use Inode_FileType.Descriptor instead.
+func (Inode_FileType) EnumDescriptor() ([]byte, []int) {
+	return file_sfs_proto_rawDescGZIP(), []int{4, 0}
+}
+
+// Primary configuration object for a filesystem instance.
+// Key: "fs:<uuid>"
 type FilesystemConfig struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Uuid          string                 `protobuf:"bytes,1,opt,name=uuid,proto3" json:"uuid,omitempty"`                                     // Unique filesystem identifier
@@ -219,7 +269,8 @@ func (x *ChunkConfig) GetMaxChunkSizeMb() uint32 {
 	return 0
 }
 
-// Runtime statistics updated by sfs-artist client
+// Runtime statistics updated by the sfs-artist client.
+// Key: "stats:<uuid>"
 type FilesystemStats struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	TotalFiles     uint64                 `protobuf:"varint,1,opt,name=total_files,json=totalFiles,proto3" json:"total_files,omitempty"`               // Total file count
@@ -288,6 +339,162 @@ func (x *FilesystemStats) GetLastUpdated() *timestamppb.Timestamp {
 	return nil
 }
 
+// Inode represents the metadata for a single file or directory.
+// Key: "i:<filesystem_uuid>:<inode_id>"
+type Inode struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                  // Inode number (unique within a filesystem)
+	Type          Inode_FileType         `protobuf:"varint,2,opt,name=type,proto3,enum=sfsproto.Inode_FileType" json:"type,omitempty"` // Type of the object
+	Size          uint64                 `protobuf:"varint,3,opt,name=size,proto3" json:"size,omitempty"`                              // Size in bytes (for files)
+	Permissions   uint32                 `protobuf:"varint,4,opt,name=permissions,proto3" json:"permissions,omitempty"`                // Unix-style permissions (e.g., 755)
+	Uid           uint32                 `protobuf:"varint,5,opt,name=uid,proto3" json:"uid,omitempty"`                                // Owner user ID
+	Gid           uint32                 `protobuf:"varint,6,opt,name=gid,proto3" json:"gid,omitempty"`                                // Owner group ID
+	Mtime         *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=mtime,proto3" json:"mtime,omitempty"`                             // Modification time
+	Ctime         *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=ctime,proto3" json:"ctime,omitempty"`                             // Metadata change time
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Inode) Reset() {
+	*x = Inode{}
+	mi := &file_sfs_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Inode) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Inode) ProtoMessage() {}
+
+func (x *Inode) ProtoReflect() protoreflect.Message {
+	mi := &file_sfs_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Inode.ProtoReflect.Descriptor instead.
+func (*Inode) Descriptor() ([]byte, []int) {
+	return file_sfs_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *Inode) GetId() uint64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *Inode) GetType() Inode_FileType {
+	if x != nil {
+		return x.Type
+	}
+	return Inode_UNSPECIFIED
+}
+
+func (x *Inode) GetSize() uint64 {
+	if x != nil {
+		return x.Size
+	}
+	return 0
+}
+
+func (x *Inode) GetPermissions() uint32 {
+	if x != nil {
+		return x.Permissions
+	}
+	return 0
+}
+
+func (x *Inode) GetUid() uint32 {
+	if x != nil {
+		return x.Uid
+	}
+	return 0
+}
+
+func (x *Inode) GetGid() uint32 {
+	if x != nil {
+		return x.Gid
+	}
+	return 0
+}
+
+func (x *Inode) GetMtime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.Mtime
+	}
+	return nil
+}
+
+func (x *Inode) GetCtime() *timestamppb.Timestamp {
+	if x != nil {
+		return x.Ctime
+	}
+	return nil
+}
+
+// Chunk represents a single piece of a file stored in S3.
+// Key: "c:<filesystem_uuid>:<file_inode_id>:<chunk_index>"
+type Chunk struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	S3ObjectKey   string                 `protobuf:"bytes,1,opt,name=s3_object_key,json=s3ObjectKey,proto3" json:"s3_object_key,omitempty"` // The key of the object in the S3 bucket
+	Size          uint64                 `protobuf:"varint,2,opt,name=size,proto3" json:"size,omitempty"`                                   // Size of this specific chunk in bytes
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Chunk) Reset() {
+	*x = Chunk{}
+	mi := &file_sfs_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Chunk) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Chunk) ProtoMessage() {}
+
+func (x *Chunk) ProtoReflect() protoreflect.Message {
+	mi := &file_sfs_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Chunk.ProtoReflect.Descriptor instead.
+func (*Chunk) Descriptor() ([]byte, []int) {
+	return file_sfs_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *Chunk) GetS3ObjectKey() string {
+	if x != nil {
+		return x.S3ObjectKey
+	}
+	return ""
+}
+
+func (x *Chunk) GetSize() uint64 {
+	if x != nil {
+		return x.Size
+	}
+	return 0
+}
+
 var File_sfs_proto protoreflect.FileDescriptor
 
 const file_sfs_proto_rawDesc = "" +
@@ -316,7 +523,23 @@ const file_sfs_proto_rawDesc = "" +
 	"\n" +
 	"total_dirs\x18\x02 \x01(\x04R\ttotalDirs\x12(\n" +
 	"\x10total_size_bytes\x18\x03 \x01(\x04R\x0etotalSizeBytes\x12=\n" +
-	"\flast_updated\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\vlastUpdatedB*Z(github.com/valandreev/studiofs-db-schemab\x06proto3"
+	"\flast_updated\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\vlastUpdated\"\xb9\x02\n" +
+	"\x05Inode\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x04R\x02id\x12,\n" +
+	"\x04type\x18\x02 \x01(\x0e2\x18.sfsproto.Inode.FileTypeR\x04type\x12\x12\n" +
+	"\x04size\x18\x03 \x01(\x04R\x04size\x12 \n" +
+	"\vpermissions\x18\x04 \x01(\rR\vpermissions\x12\x10\n" +
+	"\x03uid\x18\x05 \x01(\rR\x03uid\x12\x10\n" +
+	"\x03gid\x18\x06 \x01(\rR\x03gid\x120\n" +
+	"\x05mtime\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\x05mtime\x120\n" +
+	"\x05ctime\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\x05ctime\"4\n" +
+	"\bFileType\x12\x0f\n" +
+	"\vUNSPECIFIED\x10\x00\x12\b\n" +
+	"\x04FILE\x10\x01\x12\r\n" +
+	"\tDIRECTORY\x10\x02\"?\n" +
+	"\x05Chunk\x12\"\n" +
+	"\rs3_object_key\x18\x01 \x01(\tR\vs3ObjectKey\x12\x12\n" +
+	"\x04size\x18\x02 \x01(\x04R\x04sizeB*Z(github.com/valandreev/studiofs-db-schemab\x06proto3"
 
 var (
 	file_sfs_proto_rawDescOnce sync.Once
@@ -330,24 +553,31 @@ func file_sfs_proto_rawDescGZIP() []byte {
 	return file_sfs_proto_rawDescData
 }
 
-var file_sfs_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
+var file_sfs_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_sfs_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_sfs_proto_goTypes = []any{
-	(*FilesystemConfig)(nil),      // 0: sfsproto.FilesystemConfig
-	(*S3Config)(nil),              // 1: sfsproto.S3Config
-	(*ChunkConfig)(nil),           // 2: sfsproto.ChunkConfig
-	(*FilesystemStats)(nil),       // 3: sfsproto.FilesystemStats
-	(*timestamppb.Timestamp)(nil), // 4: google.protobuf.Timestamp
+	(Inode_FileType)(0),           // 0: sfsproto.Inode.FileType
+	(*FilesystemConfig)(nil),      // 1: sfsproto.FilesystemConfig
+	(*S3Config)(nil),              // 2: sfsproto.S3Config
+	(*ChunkConfig)(nil),           // 3: sfsproto.ChunkConfig
+	(*FilesystemStats)(nil),       // 4: sfsproto.FilesystemStats
+	(*Inode)(nil),                 // 5: sfsproto.Inode
+	(*Chunk)(nil),                 // 6: sfsproto.Chunk
+	(*timestamppb.Timestamp)(nil), // 7: google.protobuf.Timestamp
 }
 var file_sfs_proto_depIdxs = []int32{
-	4, // 0: sfsproto.FilesystemConfig.created_at:type_name -> google.protobuf.Timestamp
-	1, // 1: sfsproto.FilesystemConfig.s3_config:type_name -> sfsproto.S3Config
-	2, // 2: sfsproto.FilesystemConfig.chunk_config:type_name -> sfsproto.ChunkConfig
-	4, // 3: sfsproto.FilesystemStats.last_updated:type_name -> google.protobuf.Timestamp
-	4, // [4:4] is the sub-list for method output_type
-	4, // [4:4] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	7, // 0: sfsproto.FilesystemConfig.created_at:type_name -> google.protobuf.Timestamp
+	2, // 1: sfsproto.FilesystemConfig.s3_config:type_name -> sfsproto.S3Config
+	3, // 2: sfsproto.FilesystemConfig.chunk_config:type_name -> sfsproto.ChunkConfig
+	7, // 3: sfsproto.FilesystemStats.last_updated:type_name -> google.protobuf.Timestamp
+	0, // 4: sfsproto.Inode.type:type_name -> sfsproto.Inode.FileType
+	7, // 5: sfsproto.Inode.mtime:type_name -> google.protobuf.Timestamp
+	7, // 6: sfsproto.Inode.ctime:type_name -> google.protobuf.Timestamp
+	7, // [7:7] is the sub-list for method output_type
+	7, // [7:7] is the sub-list for method input_type
+	7, // [7:7] is the sub-list for extension type_name
+	7, // [7:7] is the sub-list for extension extendee
+	0, // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_sfs_proto_init() }
@@ -360,13 +590,14 @@ func file_sfs_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_sfs_proto_rawDesc), len(file_sfs_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   4,
+			NumEnums:      1,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
 		GoTypes:           file_sfs_proto_goTypes,
 		DependencyIndexes: file_sfs_proto_depIdxs,
+		EnumInfos:         file_sfs_proto_enumTypes,
 		MessageInfos:      file_sfs_proto_msgTypes,
 	}.Build()
 	File_sfs_proto = out.File

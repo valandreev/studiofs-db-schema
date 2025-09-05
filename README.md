@@ -58,6 +58,7 @@ S3-compatible storage configuration:
 - Bucket name
 - Access credentials
 - Region settings
+- The prefix for all object keys in the bucket
 
 ### ChunkConfig
 Data chunking parameters:

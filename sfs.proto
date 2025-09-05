@@ -27,6 +27,7 @@ message S3Config {
   string access_key = 3;                // Access credentials
   string secret_key = 4;                // Secret credentials
   string region = 5;                    // AWS region
+  string key_prefix = 6;                // Example: "my-disk-name/framestore/"
 }
 
 message ChunkConfig {

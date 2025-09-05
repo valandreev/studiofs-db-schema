@@ -156,6 +156,7 @@ type S3Config struct {
 	AccessKey     string                 `protobuf:"bytes,3,opt,name=access_key,json=accessKey,proto3" json:"access_key,omitempty"` // Access credentials
 	SecretKey     string                 `protobuf:"bytes,4,opt,name=secret_key,json=secretKey,proto3" json:"secret_key,omitempty"` // Secret credentials
 	Region        string                 `protobuf:"bytes,5,opt,name=region,proto3" json:"region,omitempty"`                        // AWS region
+	KeyPrefix     string                 `protobuf:"bytes,6,opt,name=key_prefix,json=keyPrefix,proto3" json:"key_prefix,omitempty"` // Example: "my-disk-name/framestore/"
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -221,6 +222,13 @@ func (x *S3Config) GetSecretKey() string {
 func (x *S3Config) GetRegion() string {
 	if x != nil {
 		return x.Region
+	}
+	return ""
+}
+
+func (x *S3Config) GetKeyPrefix() string {
+	if x != nil {
+		return x.KeyPrefix
 	}
 	return ""
 }
@@ -506,7 +514,7 @@ const file_sfs_proto_rawDesc = "" +
 	"\n" +
 	"created_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12/\n" +
 	"\ts3_config\x18\x04 \x01(\v2\x12.sfsproto.S3ConfigR\bs3Config\x128\n" +
-	"\fchunk_config\x18\x05 \x01(\v2\x15.sfsproto.ChunkConfigR\vchunkConfig\"\x94\x01\n" +
+	"\fchunk_config\x18\x05 \x01(\v2\x15.sfsproto.ChunkConfigR\vchunkConfig\"\xb3\x01\n" +
 	"\bS3Config\x12\x1a\n" +
 	"\bendpoint\x18\x01 \x01(\tR\bendpoint\x12\x16\n" +
 	"\x06bucket\x18\x02 \x01(\tR\x06bucket\x12\x1d\n" +
@@ -514,7 +522,9 @@ const file_sfs_proto_rawDesc = "" +
 	"access_key\x18\x03 \x01(\tR\taccessKey\x12\x1d\n" +
 	"\n" +
 	"secret_key\x18\x04 \x01(\tR\tsecretKey\x12\x16\n" +
-	"\x06region\x18\x05 \x01(\tR\x06region\"8\n" +
+	"\x06region\x18\x05 \x01(\tR\x06region\x12\x1d\n" +
+	"\n" +
+	"key_prefix\x18\x06 \x01(\tR\tkeyPrefix\"8\n" +
 	"\vChunkConfig\x12)\n" +
 	"\x11max_chunk_size_mb\x18\x01 \x01(\rR\x0emaxChunkSizeMb\"\xba\x01\n" +
 	"\x0fFilesystemStats\x12\x1f\n" +

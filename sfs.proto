@@ -6,32 +6,69 @@ option go_package = "github.com/valandreev/studiofs-db-schema";
 
 import "google/protobuf/timestamp.proto";
 
-// Primary configuration object for filesystem instances
+// ===================================================================
+//  High-level Filesystem Objects (your existing messages)
+// ===================================================================
+
+// Primary configuration object for a filesystem instance.
+// Key: "fs:<uuid>"
 message FilesystemConfig {
-  string uuid = 1;                              // Unique filesystem identifier
-  string friendly_name = 2;                     // Human-readable name
-  google.protobuf.Timestamp created_at = 3;     // Creation timestamp
-  
-  S3Config s3_config = 4;                       // Object storage configuration
-  ChunkConfig chunk_config = 5;                 // Data chunking parameters
+  string uuid = 1;                      // Unique filesystem identifier
+  string friendly_name = 2;             // Human-readable name
+  google.protobuf.Timestamp created_at = 3; // Creation timestamp
+
+  S3Config s3_config = 4;               // Object storage configuration
+  ChunkConfig chunk_config = 5;         // Data chunking parameters
 }
 
 message S3Config {
-  string endpoint = 1;                          // S3 endpoint URL
-  string bucket = 2;                            // Target bucket name
-  string access_key = 3;                        // Access credentials
-  string secret_key = 4;                        // Secret credentials
-  string region = 5;                            // AWS region
+  string endpoint = 1;                  // S3 endpoint URL
+  string bucket = 2;                    // Target bucket name
+  string access_key = 3;                // Access credentials
+  string secret_key = 4;                // Secret credentials
+  string region = 5;                    // AWS region
 }
 
 message ChunkConfig {
-  uint32 max_chunk_size_mb = 1;                 // Maximum chunk size (MB)
+  uint32 max_chunk_size_mb = 1;         // Maximum chunk size (MB)
 }
 
-// Runtime statistics updated by sfs-artist client
+// Runtime statistics updated by the sfs-artist client.
+// Key: "stats:<uuid>"
 message FilesystemStats {
-  uint64 total_files = 1;                       // Total file count
-  uint64 total_dirs = 2;                        // Total directory count
-  uint64 total_size_bytes = 3;                  // Logical size of all files
-  google.protobuf.Timestamp last_updated = 4;   // Last statistics update
+  uint64 total_files = 1;               // Total file count
+  uint64 total_dirs = 2;                // Total directory count
+  uint64 total_size_bytes = 3;          // Logical size of all files
+  google.protobuf.Timestamp last_updated = 4; // Last statistics update
+}
+
+
+// ===================================================================
+//  Low-level Filesystem Data (NEW MESSAGES to add)
+// ===================================================================
+
+// Inode represents the metadata for a single file or directory.
+// Key: "i:<filesystem_uuid>:<inode_id>"
+message Inode {
+  enum FileType {
+    UNSPECIFIED = 0;
+    FILE = 1;
+    DIRECTORY = 2;
+  }
+
+  uint64 id = 1;                        // Inode number (unique within a filesystem)
+  FileType type = 2;                    // Type of the object
+  uint64 size = 3;                      // Size in bytes (for files)
+  uint32 permissions = 4;               // Unix-style permissions (e.g., 755)
+  uint32 uid = 5;                       // Owner user ID
+  uint32 gid = 6;                       // Owner group ID
+  google.protobuf.Timestamp mtime = 7;  // Modification time
+  google.protobuf.Timestamp ctime = 8;  // Metadata change time
+}
+
+// Chunk represents a single piece of a file stored in S3.
+// Key: "c:<filesystem_uuid>:<file_inode_id>:<chunk_index>"
+message Chunk {
+  string s3_object_key = 1;             // The key of the object in the S3 bucket
+  uint64 size = 2;                      // Size of this specific chunk in bytes
 }

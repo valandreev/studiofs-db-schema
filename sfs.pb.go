@@ -28,6 +28,7 @@ const (
 	Inode_UNSPECIFIED Inode_FileType = 0
 	Inode_FILE        Inode_FileType = 1
 	Inode_DIRECTORY   Inode_FileType = 2
+	Inode_SYMLINK     Inode_FileType = 3
 )
 
 // Enum value maps for Inode_FileType.
@@ -36,11 +37,13 @@ var (
 		0: "UNSPECIFIED",
 		1: "FILE",
 		2: "DIRECTORY",
+		3: "SYMLINK",
 	}
 	Inode_FileType_value = map[string]int32{
 		"UNSPECIFIED": 0,
 		"FILE":        1,
 		"DIRECTORY":   2,
+		"SYMLINK":     3,
 	}
 )
 
@@ -351,14 +354,15 @@ func (x *FilesystemStats) GetLastUpdated() *timestamppb.Timestamp {
 // Key: "i:<filesystem_uuid>:<inode_id>"
 type Inode struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                  // Inode number (unique within a filesystem)
-	Type          Inode_FileType         `protobuf:"varint,2,opt,name=type,proto3,enum=sfsproto.Inode_FileType" json:"type,omitempty"` // Type of the object
-	Size          uint64                 `protobuf:"varint,3,opt,name=size,proto3" json:"size,omitempty"`                              // Size in bytes (for files)
-	Permissions   uint32                 `protobuf:"varint,4,opt,name=permissions,proto3" json:"permissions,omitempty"`                // Unix-style permissions (e.g., 755)
-	Uid           uint32                 `protobuf:"varint,5,opt,name=uid,proto3" json:"uid,omitempty"`                                // Owner user ID
-	Gid           uint32                 `protobuf:"varint,6,opt,name=gid,proto3" json:"gid,omitempty"`                                // Owner group ID
-	Mtime         *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=mtime,proto3" json:"mtime,omitempty"`                             // Modification time
-	Ctime         *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=ctime,proto3" json:"ctime,omitempty"`                             // Metadata change time
+	Id            uint64                 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`                                           // Inode number (unique within a filesystem)
+	Type          Inode_FileType         `protobuf:"varint,2,opt,name=type,proto3,enum=sfsproto.Inode_FileType" json:"type,omitempty"`          // Type of the object
+	Size          uint64                 `protobuf:"varint,3,opt,name=size,proto3" json:"size,omitempty"`                                       // Size in bytes (for files)
+	Permissions   uint32                 `protobuf:"varint,4,opt,name=permissions,proto3" json:"permissions,omitempty"`                         // Unix-style permissions (e.g., 755)
+	Uid           uint32                 `protobuf:"varint,5,opt,name=uid,proto3" json:"uid,omitempty"`                                         // Owner user ID
+	Gid           uint32                 `protobuf:"varint,6,opt,name=gid,proto3" json:"gid,omitempty"`                                         // Owner group ID
+	Mtime         *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=mtime,proto3" json:"mtime,omitempty"`                                      // Modification time
+	Ctime         *timestamppb.Timestamp `protobuf:"bytes,8,opt,name=ctime,proto3" json:"ctime,omitempty"`                                      // Metadata change time
+	SymlinkTarget string                 `protobuf:"bytes,9,opt,name=symlink_target,json=symlinkTarget,proto3" json:"symlink_target,omitempty"` // Target path if symlink
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -449,6 +453,13 @@ func (x *Inode) GetCtime() *timestamppb.Timestamp {
 	return nil
 }
 
+func (x *Inode) GetSymlinkTarget() string {
+	if x != nil {
+		return x.SymlinkTarget
+	}
+	return ""
+}
+
 // Chunk represents a single piece of a file stored in S3.
 // Key: "c:<filesystem_uuid>:<file_inode_id>:<chunk_index>"
 type Chunk struct {
@@ -533,7 +544,7 @@ const file_sfs_proto_rawDesc = "" +
 	"\n" +
 	"total_dirs\x18\x02 \x01(\x04R\ttotalDirs\x12(\n" +
 	"\x10total_size_bytes\x18\x03 \x01(\x04R\x0etotalSizeBytes\x12=\n" +
-	"\flast_updated\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\vlastUpdated\"\xb9\x02\n" +
+	"\flast_updated\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\vlastUpdated\"\xed\x02\n" +
 	"\x05Inode\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x04R\x02id\x12,\n" +
 	"\x04type\x18\x02 \x01(\x0e2\x18.sfsproto.Inode.FileTypeR\x04type\x12\x12\n" +
@@ -542,11 +553,13 @@ const file_sfs_proto_rawDesc = "" +
 	"\x03uid\x18\x05 \x01(\rR\x03uid\x12\x10\n" +
 	"\x03gid\x18\x06 \x01(\rR\x03gid\x120\n" +
 	"\x05mtime\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\x05mtime\x120\n" +
-	"\x05ctime\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\x05ctime\"4\n" +
+	"\x05ctime\x18\b \x01(\v2\x1a.google.protobuf.TimestampR\x05ctime\x12%\n" +
+	"\x0esymlink_target\x18\t \x01(\tR\rsymlinkTarget\"A\n" +
 	"\bFileType\x12\x0f\n" +
 	"\vUNSPECIFIED\x10\x00\x12\b\n" +
 	"\x04FILE\x10\x01\x12\r\n" +
-	"\tDIRECTORY\x10\x02\"?\n" +
+	"\tDIRECTORY\x10\x02\x12\v\n" +
+	"\aSYMLINK\x10\x03\"?\n" +
 	"\x05Chunk\x12\"\n" +
 	"\rs3_object_key\x18\x01 \x01(\tR\vs3ObjectKey\x12\x12\n" +
 	"\x04size\x18\x02 \x01(\x04R\x04sizeB*Z(github.com/valandreev/studiofs-db-schemab\x06proto3"

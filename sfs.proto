@@ -55,6 +55,7 @@ message Inode {
     UNSPECIFIED = 0;
     FILE = 1;
     DIRECTORY = 2;
+    SYMLINK = 3;
   }
 
   uint64 id = 1;                        // Inode number (unique within a filesystem)
@@ -65,6 +66,7 @@ message Inode {
   uint32 gid = 6;                       // Owner group ID
   google.protobuf.Timestamp mtime = 7;  // Modification time
   google.protobuf.Timestamp ctime = 8;  // Metadata change time
+  string symlink_target = 9;          // Target path if symlink
 }
 
 // Chunk represents a single piece of a file stored in S3.
